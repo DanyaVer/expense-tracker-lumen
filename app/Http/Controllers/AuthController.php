@@ -88,8 +88,11 @@ class AuthController extends Controller
      */
     protected function respondWithToken($token)
     {
+        $user = JWTAuth::setToken($token)->toUser()->load('currency');
+        $currency = $user->currency;
         return response()->json([
-            'user' => JWTAuth::setToken($token)->toUser()->load('currency'),
+            'user' => $user,
+            'currency' => $currency,
             'access_token' => $token,
             'token_type' => 'bearer',
             'token_created' => time(),

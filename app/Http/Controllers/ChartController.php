@@ -58,9 +58,15 @@ class ChartController extends Controller
                 'currencies.currency_name',
                 'income_expenses.transaction_type',
                 DB::raw('SUM(income_expenses.amount) AS total'),
-                DB::raw('DATE_FORMAT(income_expenses.transaction_date, "%Y-%m") AS transaction_month')
+                DB::raw("FORMAT(income_expenses.transaction_date, 'yyyy-MM') AS transaction_month")
             )
-            ->groupBy('currency_id', 'transaction_month', 'transaction_type')
+            ->groupBy(
+                'currency_id', 
+                'currencies.currency_code',
+                'currencies.currency_name',
+                'income_expenses.transaction_type',
+                "FORMAT(income_expenses.transaction_date, 'yyyy-MM')", 'transaction_type'
+            )
             ->get();
 
         $userCurrencies = $userIncomeExpenses->pluck('currency_code')->unique();
@@ -138,9 +144,15 @@ class ChartController extends Controller
                 'currencies.currency_name',
                 'income_expenses.transaction_type',
                 DB::raw('SUM(income_expenses.amount) AS total'),
-                DB::raw('DATE_FORMAT(income_expenses.transaction_date, "%Y-%m") AS transaction_month')
+                DB::raw("FORMAT(income_expenses.transaction_date, 'yyyy-MM') AS transaction_month")
             )
-            ->groupBy('currency_id', 'transaction_month', 'transaction_type')
+            ->groupBy(
+                'currency_id', 
+                'currencies.currency_code',
+                'currencies.currency_name',
+                'income_expenses.transaction_type',
+                "FORMAT(income_expenses.transaction_date, 'yyyy-MM')", 'transaction_type'
+            )
             ->get();
 
         $userCurrencies = $userIncomeExpenses->pluck('currency_code')->unique();

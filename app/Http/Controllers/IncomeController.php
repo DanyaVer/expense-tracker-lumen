@@ -180,7 +180,7 @@ class IncomeController extends Controller
             ->where('income_expenses.transaction_type', 'Income')
             ->where('income_expenses.created_by', Auth::id())
             ->select('currencies.currency_code', 'currencies.currency_name', DB::raw('SUM(amount) AS total'))
-            ->groupBy('currency_id');
+            ->groupBy('currency_id', 'currencies.currency_code', 'currencies.currency_name');
 
         $incomeThisMonth = $userIncomes->whereYear('income_expenses.transaction_date', date('Y'))
             ->whereMonth('income_expenses.transaction_date', date('n'))

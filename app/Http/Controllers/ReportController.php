@@ -34,8 +34,15 @@ class ReportController extends Controller
                 'currencies.currency_code',
                 'currencies.currency_name',
                 DB::raw('SUM(income_expenses.amount) AS total'),
-                DB::raw('DATE_FORMAT(income_expenses.transaction_date, "%Y-%m") AS expense_month')
-            )->groupBy('currency_id', 'expense_month')->get();
+                DB::raw("FORMAT(income_expenses.transaction_date, 'yyyy-MM') AS expense_month")
+            )
+            ->groupBy(
+                'currency_id', 
+                'currencies.currency_code',
+                'currencies.currency_name',
+                DB::raw("FORMAT(income_expenses.transaction_date, 'yyyy-MM')")
+            )
+            ->get();
 
 
         $expenseThisMonth = $userExpenses->where('expense_month', $dateTime->format('Y-m'));
@@ -58,8 +65,8 @@ class ReportController extends Controller
      * @throws \Exception
      */
     public function monthlyIncomeSummary()
-    {
-
+{
+    try {
         $dateTime = new DateTime();
 
         $userIncomes = IncomeExpense::join('currencies', 'currencies.id', 'income_expenses.currency_id')
@@ -69,19 +76,39 @@ class ReportController extends Controller
                 'currencies.currency_code',
                 'currencies.currency_name',
                 DB::raw('SUM(income_expenses.amount) AS total'),
-                DB::raw('DATE_FORMAT(income_expenses.transaction_date, "%Y-%m") AS income_month')
-            )->groupBy('currency_id', 'income_month')->get();
+                DB::raw("FORMAT(income_expenses.transaction_date, 'yyyy-MM') AS income_month")
+            )
+            ->groupBy(
+                'currency_id', 
+                'currencies.currency_code', 
+                'currencies.currency_name', 
+                DB::raw("FORMAT(income_expenses.transaction_date, 'yyyy-MM')")
+            )
+            ->get();
 
         $incomeThisMonth = $userIncomes->where('income_month', $dateTime->format('Y-m'));
 
-        $incomeLastMonth = $userIncomes->where('income_month', $dateTime->modify('last day of last month')->format('Y-m'));
+        $incomeLastMonth = $userIncomes->where(
+            'income_month',
+            $dateTime->modify('last day of last month')->format('Y-m')
+        );
 
-        return response()->json(['data' => [
-            'income_this_month' => $incomeThisMonth,
-            'income_last_month' => $incomeLastMonth
-        ]], 200);
+        return response()->json([
+            'data' => [
+                'income_this_month' => $incomeThisMonth,
+                'income_last_month' => $incomeLastMonth
+            ]
+        ], 200);
 
+    } catch (\Exception $e) {
+        // Log or display the exact error message
+        \Log::error($e->getMessage());
+        return response()->json([
+            'error' => $e->getMessage()
+        ], 500);
     }
+}
+
 
     /**
      * Get all transactions
@@ -102,9 +129,16 @@ class ReportController extends Controller
                 'currencies.currency_code',
                 'currencies.currency_name',
                 DB::raw('SUM(income_expenses.amount) AS total'),
-                DB::raw('DATE_FORMAT(income_expenses.transaction_date, "%Y-%m-%d") AS formatted_date')
+                DB::raw("FORMAT(income_expenses.transaction_date, 'yyyy-MM-dd') AS formatted_date")
             )
-            ->groupBy('currency_id', 'transaction_type', 'formatted_date')
+            ->groupBy(
+                'currency_id', 
+                'income_expenses.transaction_type',
+                'income_expenses.transaction_date',
+                'currencies.currency_code',
+                'currencies.currency_name',
+                DB::raw("FORMAT(income_expenses.transaction_date, 'yyyy-MM-dd')")
+            )
             ->get();
 
         return response()->json(['transactions' => $userIncomeExpenses], 200);
