@@ -11,6 +11,7 @@
 |
 */
 
+
 $router->get('/', function () use ($router) {
     return 'Server is running! 🙂';
 });
@@ -70,4 +71,12 @@ $router->group(['prefix' => 'api/v1', 'middleware' => ['auth:api']], function ()
     $router->get('/chart/income-expense/month-wise', 'ChartController@incomeExpenseDataMonthWise');
     $router->get('/chart/income-expense/category-wise', 'ChartController@incomeExpenseDataMonthAndCategoryWise');
 
+    $router->get('/receipt', 'ReceiptController@index');
+    $router->post('/receipt', 'ReceiptController@store');
+    $router->get('/receipt/{id}', 'ReceiptController@show');
+    $router->put('/receipt/{id}', 'ReceiptController@update');
+    $router->delete('/receipt/{id}', 'ReceiptController@destroy');
+
+    $router->post('/receipt/parser/parse-image-test', 'ReceiptParserController@parseImageTest');
+    $router->post('/receipt/parser/parse-image', 'ReceiptParserController@parseImage');
 });

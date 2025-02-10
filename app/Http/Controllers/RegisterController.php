@@ -36,7 +36,7 @@ class RegisterController extends Controller
         $user = new User();
         $user->name = $request->name;
         $user->email = $request->email;
-        $user->currency_id = 13;
+        $user->currency_id = 147;
         $user->password = Hash::make($request->password);
         $user->save();
 
